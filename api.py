@@ -60,11 +60,9 @@ def index():
     for field in REQUIRED_FIELDS:
         value = data.get(field, None)
         if value is None:
-            raise InvalidUsage('Request body needs a "{}" field.'.format(field))
+            raise InvalidUsage(f'Request body needs a "{field}" field.')
         if not value.strip():
-            raise InvalidUsage(
-                'The "{}" field cannot be empty or spaces.'.format(field)
-            )
+            raise InvalidUsage(f'The "{field}" field cannot be empty or spaces.')
 
     if not re.match(EMAIL_REGEXP, data["email"]):
         raise InvalidUsage('The "email" field needs to be a valid email address.')
@@ -77,13 +75,15 @@ def index():
     # Create a string with those fields that we do not recognize
     other_fields = set(data.keys()) - set(REQUIRED_FIELDS)
     str_other_fields = "\n".join(
-        "<strong>{}</strong>: {}<br>".format(field, data[field])
+        f"<strong>{field}</strong>: {data[field]}<br>"
         for field in sorted(other_fields)
     )
 
-    subject = "Tryolabs contact form message from {} ({})".format(
-        data["name"], data["email"]
+
+    subject = (
+        f'Tryolabs contact form message from {data["name"]} ({data["email"]})'
     )
+
     message = """<strong>name</strong>: {}<br>
 <strong>email</strong>: {}<br>
 {}
@@ -115,12 +115,11 @@ def index():
             jsonify(
                 {
                     "status": "error",
-                    "error": "SES responded with {}".format(
-                        response["ResponseMetadata"]["HTTPStatusCode"]
-                    ),
+                    "error": f'SES responded with {response["ResponseMetadata"]["HTTPStatusCode"]}',
                 }
             ),
             500,
         )
+
 
     return jsonify({"status": "ok"}), 200
